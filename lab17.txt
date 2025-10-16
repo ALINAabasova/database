@@ -1,0 +1,218 @@
+S C:\Users\Admin>  psql -h localhost -p 5432 -U postgres -d postgres
+Password for user postgres:
+
+psql (17.6, server 16.2)
+WARNING: Console code page (866) differs from Windows code page (1251)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+postgres=# CREATE TABLE employees (
+postgres(#     employee_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50),
+postgres(#     last_name VARCHAR(50),
+postgres(#     email VARCHAR(100),
+postgres(#     department VARCHAR(50),
+postgres(#     salary DECIMAL(10,2)
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# CREATE TABLE products (
+postgres(#     product_id SERIAL PRIMARY KEY,
+postgres(#     product_name VARCHAR(100),
+postgres(#     price DECIMAL(10,2),
+postgres(#     category VARCHAR(50)
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# CREATE TABLE customers (
+postgres(#     customer_id SERIAL PRIMARY KEY,
+postgres(#     customer_name VARCHAR(100),
+postgres(#     email VARCHAR(100),
+postgres(#     phone VARCHAR(15)
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# CREATE TABLE orders (
+postgres(#     order_id SERIAL PRIMARY KEY,
+postgres(#     customer_id INTEGER,
+postgres(#     order_date DATE,
+postgres(#     total_amount DECIMAL(10,2)
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# INSERT INTO employees (first_name, last_name, email, department, salary) VALUES
+postgres-# ('John', 'Smith', 'john@company.com', 'IT', 75000),
+postgres-# ('Sarah', 'Johnson', 'sarah@company.com', 'HR', 65000),
+postgres-# ('Mike', 'Brown', 'mike@company.com', 'IT', 80000),
+postgres-# ('Lisa', 'Davis', 'lisa@company.com', 'Finance', 70000);
+INSERT 0 4
+postgres=#
+postgres=# INSERT INTO products (product_name, price, category) VALUES
+postgres-# ('Laptop', 1200.00, 'Electronics'),
+postgres-# ('Mouse', 25.50, 'Electronics'),
+postgres-# ('Keyboard', 45.00, 'Electronics'),
+postgres-# ('Notebook', 5.99, 'Office Supplies');
+INSERT 0 4
+postgres=#
+postgres=# INSERT INTO customers (customer_name, email, phone) VALUES
+postgres-# ('Alice Cooper', 'alice@email.com', '123-456-7890'),
+postgres-# ('Bob Wilson', 'bob@email.com', '098-765-4321'),
+postgres-# ('Carol Davis', 'carol@email.com', '555-123-4567');
+INSERT 0 3
+postgres=#
+postgres=# INSERT INTO orders (customer_id, order_date, total_amount) VALUES
+postgres-# (1, '2024-01-15', 150.00),
+postgres-# (2, '2024-01-16', 250.50),
+postgres-# (3, '2024-01-17', 75.25);
+INSERT 0 3
+postgres=#
+postgres=# \copy employees TO 'C:\Users\Admin\Downloads\employees.csv' WITH CSV HEADER
+COPY 4
+postgres=#
+postgres=# \copy products TO 'C:\Users\Admin\Downloads\products.csv' WITH CSV HEADER
+COPY 4
+postgres=#
+postgres=# \copy customers TO 'C:\Users\Admin\Downloads\customers.csv' WITH CSV HEADER
+COPY 3
+postgres=#
+postgres=# \copy orders TO 'C:\Users\Admin\Downloads\orders.csv' WITH CSV HEADER
+COPY 3
+postgres=#
+postgres=# \copy (SELECT * FROM employees WHERE department = 'IT') TO 'C:\Users\Admin\Downloads\it_employees.csv' WITH CSV HEADER
+COPY 2
+postgres=#
+postgres=# CREATE TABLE imported_employees (
+postgres(#     employee_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50),
+postgres(#     last_name VARCHAR(50),
+postgres(#     email VARCHAR(100),
+postgres(#     department VARCHAR(50),
+postgres(#     salary DECIMAL(10,2)
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# \copy imported_employees FROM 'C:\Users\Admin\Downloads\employees.csv' WITH CSV HEADER
+COPY 4
+postgres=#
+postgres=# SELECT COUNT(*) AS imported_count FROM imported_employees;
+ imported_count
+----------------
+              4
+(1 row)
+
+
+postgres=#
+postgres=# CREATE TABLE imported_products (
+postgres(#     product_id SERIAL PRIMARY KEY,
+postgres(#     product_name VARCHAR(100),
+postgres(#     price DECIMAL(10,2),
+postgres(#     category VARCHAR(50)
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# \copy imported_products FROM 'C:\Users\Admin\Downloads\products.csv' WITH CSV HEADER
+COPY 4
+postgres=#
+postgres=# SELECT COUNT(*) AS products_imported FROM imported_products;
+ products_imported
+-------------------
+                 4
+(1 row)
+
+
+postgres=#
+postgres=# SELECT pg_database_size('postgres') AS database_size_bytes;
+ database_size_bytes
+---------------------
+             8933859
+(1 row)
+
+
+postgres=#
+postgres=# SELECT
+postgres-#     schemaname,
+postgres-#     tablename,
+postgres-#     pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS table_size
+postgres-# FROM pg_tables
+postgres-# WHERE schemaname NOT IN ('information_schema', 'pg_catalog')
+postgres-# ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
+ schemaname |      tablename      | table_size
+------------+---------------------+------------
+ public     | university_students | 32 kB
+ public     | course_enrollments  | 24 kB
+ public     | imported_products   | 24 kB
+ public     | orders              | 24 kB
+ public     | imported_employees  | 24 kB
+ public     | employees           | 24 kB
+ public     | products            | 24 kB
+ public     | customers           | 24 kB
+ public     | department          | 8192 bytes
+ public     | transactions        | 8192 bytes
+(10 rows)
+
+
+postgres=#
+postgres=# SELECT pg_create_restore_point('before_export_import_operations');
+ pg_create_restore_point
+-------------------------
+ 0/39880C8
+(1 row)
+
+
+postgres=#
+postgres=# SELECT
+postgres-#     pid,
+postgres-#     usename AS username,
+postgres-#     application_name,
+postgres-#     client_addr,
+postgres-#     state
+postgres-# FROM pg_stat_activity
+postgres-# WHERE application_name IS NOT NULL;
+  pid  | username | application_name | client_addr | state
+-------+----------+------------------+-------------+--------
+  7508 | postgres |                  |             |
+  7500 |          |                  |             |
+ 12048 | postgres | psql             | ::1         | active
+  7396 |          |                  |             |
+  7388 |          |                  |             |
+  7492 |          |                  |             |
+(6 rows)
+
+
+postgres=#
+postgres=# SELECT 'employees' AS table_name, COUNT(*) AS record_count FROM employees
+postgres-# UNION ALL
+postgres-# SELECT 'products', COUNT(*) FROM products
+postgres-# UNION ALL
+postgres-# SELECT 'customers', COUNT(*) FROM customers
+postgres-# UNION ALL
+postgres-# SELECT 'orders', COUNT(*) FROM orders
+postgres-# UNION ALL
+postgres-# SELECT 'imported_employees', COUNT(*) FROM imported_employees
+postgres-# UNION ALL
+postgres-# SELECT 'imported_products', COUNT(*) FROM imported_products;
+     table_name     | record_count
+--------------------+--------------
+ employees          |            4
+ products           |            4
+ customers          |            3
+ orders             |            3
+ imported_employees |            4
+ imported_products  |            4
+(6 rows)
+
+
+postgres=#
+postgres=# DROP TABLE imported_employees;
+DROP TABLE
+postgres=# DROP TABLE imported_products;
+DROP TABLE
+postgres=# DROP TABLE orders;
+DROP TABLE
+postgres=# DROP TABLE customers;
+DROP TABLE
+postgres=# DROP TABLE products;
+DROP TABLE
+postgres=# DROP TABLE employees;
+DROP TABLE

@@ -1,0 +1,291 @@
+postgres=# CREATE TABLE employees (
+postgres(#     employee_id SERIAL PRIMARY KEY,
+postgres(#     name VARCHAR(100),
+postgres(#     department VARCHAR(50),
+postgres(#     salary DECIMAL(10,2),
+postgres(#     hire_date DATE
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# CREATE TABLE products (
+postgres(#     product_id SERIAL PRIMARY KEY,
+postgres(#     product_name VARCHAR(100),
+postgres(#     price DECIMAL(10,2)
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# CREATE TABLE customers (
+postgres(#     customer_id SERIAL PRIMARY KEY,
+postgres(#     customer_name VARCHAR(100),
+postgres(#     email VARCHAR(100)
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# CREATE TABLE sales (
+postgres(#     sale_id SERIAL PRIMARY KEY,
+postgres(#     employee_id INTEGER,
+postgres(#     amount DECIMAL(10,2),
+postgres(#     sale_date DATE
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# INSERT INTO employees (name, department, salary, hire_date) VALUES
+postgres-# ('John Smith', 'Sales', 60000, '2020-03-15'),
+postgres-# ('Sarah Johnson', 'Engineering', 85000, '2019-07-22'),
+postgres-# ('Mike Brown', 'Engineering', 95000, '2018-11-30'),
+postgres-# ('Lisa Davis', 'Marketing', 55000, '2021-01-10'),
+postgres-# ('David Wilson', 'Sales', 65000, '2020-09-05'),
+postgres-# ('Brad Cooper', 'Engineering', 78000, '2022-03-18'),
+postgres-# ('Brandon Lee', 'Sales', 72000, '2021-06-12');
+INSERT 0 7
+postgres=#
+postgres=# INSERT INTO products (product_name, price) VALUES
+postgres-# ('Laptop', 1200.00),
+postgres-# ('Mouse', 25.50),
+postgres-# ('Keyboard', 45.00),
+postgres-# ('Strawberry Jam', 8.99),
+postgres-# ('Blueberry Pie', 12.50),
+postgres-# ('Monitor', 299.99);
+INSERT 0 6
+postgres=#
+postgres=# INSERT INTO customers (customer_name, email) VALUES
+postgres-# ('Brad Pitt', 'bpitt@gmail.com'),
+postgres-# ('Brandon Stark', 'bstark@yahoo.com'),
+postgres-# ('Alice Johnson', 'alice@gmail.com'),
+postgres-# ('Bob Smith', 'bob@outlook.com');
+INSERT 0 4
+postgres=#
+postgres=# INSERT INTO sales (employee_id, amount, sale_date) VALUES
+postgres-# (1, 1500.00, '2024-01-15'),
+postgres-# (2, 2500.00, '2024-01-20'),
+postgres-# (1, 800.00, '2024-02-01'),
+postgres-# (3, 3200.00, '2024-02-10'),
+postgres-# (5, 1200.00, '2024-02-15');
+INSERT 0 5
+postgres=#
+postgres=# SELECT * FROM employees;
+ employee_id |     name      | department  |  salary  | hire_date
+-------------+---------------+-------------+----------+------------
+           1 | John Smith    | Sales       | 60000.00 | 2020-03-15
+           2 | Sarah Johnson | Engineering | 85000.00 | 2019-07-22
+           3 | Mike Brown    | Engineering | 95000.00 | 2018-11-30
+           4 | Lisa Davis    | Marketing   | 55000.00 | 2021-01-10
+           5 | David Wilson  | Sales       | 65000.00 | 2020-09-05
+           6 | Brad Cooper   | Engineering | 78000.00 | 2022-03-18
+           7 | Brandon Lee   | Sales       | 72000.00 | 2021-06-12
+(7 rows)
+
+
+postgres=#
+postgres=# SELECT name, department FROM employees;
+     name      | department
+---------------+-------------
+ John Smith    | Sales
+ Sarah Johnson | Engineering
+ Mike Brown    | Engineering
+ Lisa Davis    | Marketing
+ David Wilson  | Sales
+ Brad Cooper   | Engineering
+ Brandon Lee   | Sales
+(7 rows)
+
+
+postgres=#
+postgres=# SELECT name, salary, salary * 0.10 AS potential_bonus
+postgres-# FROM employees;
+     name      |  salary  | potential_bonus
+---------------+----------+-----------------
+ John Smith    | 60000.00 |       6000.0000
+ Sarah Johnson | 85000.00 |       8500.0000
+ Mike Brown    | 95000.00 |       9500.0000
+ Lisa Davis    | 55000.00 |       5500.0000
+ David Wilson  | 65000.00 |       6500.0000
+ Brad Cooper   | 78000.00 |       7800.0000
+ Brandon Lee   | 72000.00 |       7200.0000
+(7 rows)
+
+
+postgres=#
+postgres=# SELECT name, salary
+postgres-# FROM employees
+postgres-# WHERE department = 'Sales';
+     name     |  salary
+--------------+----------
+ John Smith   | 60000.00
+ David Wilson | 65000.00
+ Brandon Lee  | 72000.00
+(3 rows)
+
+
+postgres=#
+postgres=# SELECT name
+postgres-# FROM employees
+postgres-# WHERE salary > 75000 AND department = 'Engineering';
+     name
+---------------
+ Sarah Johnson
+ Mike Brown
+ Brad Cooper
+(3 rows)
+
+
+postgres=#
+postgres=# SELECT product_name, price
+postgres-# FROM products
+postgres-# WHERE price BETWEEN 20 AND 50;
+ product_name | price
+--------------+-------
+ Mouse        | 25.50
+ Keyboard     | 45.00
+(2 rows)
+
+
+postgres=#
+postgres=# SELECT customer_name
+postgres-# FROM customers
+postgres-# WHERE customer_name LIKE 'Bra%';
+ customer_name
+---------------
+ Brad Pitt
+ Brandon Stark
+(2 rows)
+
+
+postgres=#
+postgres=# SELECT product_name
+postgres-# FROM products
+postgres-# WHERE product_name LIKE '%berry';
+ product_name
+--------------
+(0 rows)
+
+
+postgres=#
+postgres=# SELECT email
+postgres-# FROM customers
+postgres-# WHERE email ILIKE '%@gmail.com';
+      email
+-----------------
+ bpitt@gmail.com
+ alice@gmail.com
+(2 rows)
+
+
+postgres=#
+postgres=# SELECT name
+postgres-# FROM employees
+postgres-# WHERE name ~ '^[AB]';
+    name
+-------------
+ Brad Cooper
+ Brandon Lee
+(2 rows)
+
+
+postgres=#
+postgres=# SELECT email
+postgres-# FROM customers
+postgres-# WHERE email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$';
+      email
+------------------
+ bpitt@gmail.com
+ bstark@yahoo.com
+ alice@gmail.com
+ bob@outlook.com
+(4 rows)
+
+
+postgres=#
+postgres=# SELECT name, department
+postgres-# FROM employees
+postgres-# WHERE employee_id IN (1, 3, 5);
+     name     | department
+--------------+-------------
+ John Smith   | Sales
+ Mike Brown   | Engineering
+ David Wilson | Sales
+(3 rows)
+
+
+postgres=#
+postgres=# SELECT name
+postgres-# FROM employees
+postgres-# WHERE employee_id IN (SELECT employee_id FROM sales WHERE amount > 1000);
+     name
+---------------
+ John Smith
+ Sarah Johnson
+ Mike Brown
+ David Wilson
+(4 rows)
+
+
+postgres=#
+postgres=# SELECT name
+postgres-# FROM employees e
+postgres-# WHERE EXISTS (
+postgres(#     SELECT 1
+postgres(#     FROM sales s
+postgres(#     WHERE s.employee_id = e.employee_id AND s.amount > 1000
+postgres(# );
+     name
+---------------
+ John Smith
+ Sarah Johnson
+ Mike Brown
+ David Wilson
+(4 rows)
+
+
+postgres=#
+postgres=# SELECT name, salary,
+postgres-#     CASE
+postgres-#     WHEN salary > 100000 THEN 'Senior'
+postgres-#     WHEN salary BETWEEN 60000 AND 100000 THEN 'Mid-Level'
+postgres-#     ELSE 'Junior'
+postgres-#     END AS employee_level
+postgres-# FROM employees;
+     name      |  salary  | employee_level
+---------------+----------+----------------
+ John Smith    | 60000.00 | Mid-Level
+ Sarah Johnson | 85000.00 | Mid-Level
+ Mike Brown    | 95000.00 | Mid-Level
+ Lisa Davis    | 55000.00 | Junior
+ David Wilson  | 65000.00 | Mid-Level
+ Brad Cooper   | 78000.00 | Mid-Level
+ Brandon Lee   | 72000.00 | Mid-Level
+(7 rows)
+
+
+postgres=#
+postgres=# WITH department_averages AS (
+postgres(#     SELECT
+postgres(#     department,
+postgres(#     AVG(salary) AS avg_salary
+postgres(#     FROM employees
+postgres(#     GROUP BY department
+postgres(# )
+postgres-# SELECT
+postgres-#   e.name,
+postgres-#   e.salary,
+postgres-#   e.department,
+postgres-#   da.avg_salary
+postgres-# FROM employees e
+postgres-# JOIN department_averages da ON e.department = da.department
+postgres-# WHERE e.salary > da.avg_salary;
+    name     |  salary  | department  |     avg_salary
+-------------+----------+-------------+--------------------
+ Mike Brown  | 95000.00 | Engineering | 86000.000000000000
+ Brandon Lee | 72000.00 | Sales       | 65666.666666666667
+(2 rows)
+
+
+postgres=#
+postgres=# DROP TABLE sales CASCADE;
+DROP TABLE
+postgres=# DROP TABLE customers CASCADE;
+DROP TABLE
+postgres=# DROP TABLE products CASCADE;
+DROP TABLE
+postgres=# DROP TABLE employees CASCADE;
+DROP TABLE

@@ -1,0 +1,140 @@
+PS C:\Users\Admin>  psql -h localhost -p 5432 -U postgres -d postgres
+Password for user postgres:
+
+psql (17.6, server 16.2)
+WARNING: Console code page (866) differs from Windows code page (1251)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+postgres=# CREATE TABLE Students (
+postgres(#     student_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50),
+postgres(#     last_name VARCHAR(50),
+postgres(#     birth_date DATE
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# INSERT INTO Students (first_name, last_name, birth_date)
+postgres-# VALUES ('Aibek', 'Sharshenov', '2002-05-12');
+INSERT 0 1
+postgres=#
+postgres=# INSERT INTO Students (first_name, last_name, birth_date) VALUES
+postgres-# ('Ainura', 'Toktomamatova', '2001-09-23'),
+postgres-# ('Bakyt', 'Mamatov', '2003-01-15'),
+postgres-# ('Gulzat', 'Sultanova', '2002-07-30');
+INSERT 0 3
+postgres=#
+postgres=# SELECT * FROM Students;
+ student_id | first_name |   last_name   | birth_date
+------------+------------+---------------+------------
+          1 | Aibek      | Sharshenov    | 2002-05-12
+          2 | Ainura     | Toktomamatova | 2001-09-23
+          3 | Bakyt      | Mamatov       | 2003-01-15
+          4 | Gulzat     | Sultanova     | 2002-07-30
+(4 rows)
+
+
+postgres=#
+postgres=# UPDATE Students
+postgres-# SET birth_date = '2002-05-15'
+postgres-# WHERE first_name = 'Aibek' AND last_name = 'Sharshenov';
+UPDATE 1
+postgres=#
+postgres=# SELECT * FROM Students;
+ student_id | first_name |   last_name   | birth_date
+------------+------------+---------------+------------
+          2 | Ainura     | Toktomamatova | 2001-09-23
+          3 | Bakyt      | Mamatov       | 2003-01-15
+          4 | Gulzat     | Sultanova     | 2002-07-30
+          1 | Aibek      | Sharshenov    | 2002-05-15
+(4 rows)
+
+
+postgres=#
+postgres=# DELETE FROM Students
+postgres-# WHERE first_name = 'Gulzat' AND last_name = 'Sultanova';
+DELETE 1
+postgres=#
+postgres=# SELECT * FROM Students;
+ student_id | first_name |   last_name   | birth_date
+------------+------------+---------------+------------
+          2 | Ainura     | Toktomamatova | 2001-09-23
+          3 | Bakyt      | Mamatov       | 2003-01-15
+          1 | Aibek      | Sharshenov    | 2002-05-15
+(3 rows)
+
+
+postgres=#
+postgres=# DELETE FROM Students
+postgres-# WHERE birth_date < '2002-01-01';
+DELETE 1
+postgres=#
+postgres=# SELECT * FROM Students;
+ student_id | first_name | last_name  | birth_date
+------------+------------+------------+------------
+          3 | Bakyt      | Mamatov    | 2003-01-15
+          1 | Aibek      | Sharshenov | 2002-05-15
+(2 rows)
+
+
+postgres=#
+postgres=# INSERT INTO Students (first_name, last_name, birth_date) VALUES
+postgres-# ('Nursultan', 'Isakov', '2002-04-10'),
+postgres-# ('Meerim', 'Bekova', '2003-06-12'),
+postgres-# ('Tilek', 'Usubaliev', '2001-11-05'),
+postgres-# ('Aidar', 'Uulu', '2002-08-20'),
+postgres-# ('Cholpon', 'Isakov', '2003-03-15');
+INSERT 0 5
+postgres=#
+postgres=# SELECT * FROM Students;
+ student_id | first_name | last_name  | birth_date
+------------+------------+------------+------------
+          3 | Bakyt      | Mamatov    | 2003-01-15
+          1 | Aibek      | Sharshenov | 2002-05-15
+          5 | Nursultan  | Isakov     | 2002-04-10
+          6 | Meerim     | Bekova     | 2003-06-12
+          7 | Tilek      | Usubaliev  | 2001-11-05
+          8 | Aidar      | Uulu       | 2002-08-20
+          9 | Cholpon    | Isakov     | 2003-03-15
+(7 rows)
+
+
+postgres=#
+postgres=# UPDATE Students
+postgres-# SET last_name = 'Bekov'
+postgres-# WHERE last_name IN ('Uulu', 'Isakov');
+UPDATE 3
+postgres=#
+postgres=# SELECT * FROM Students;
+ student_id | first_name | last_name  | birth_date
+------------+------------+------------+------------
+          3 | Bakyt      | Mamatov    | 2003-01-15
+          1 | Aibek      | Sharshenov | 2002-05-15
+          6 | Meerim     | Bekova     | 2003-06-12
+          7 | Tilek      | Usubaliev  | 2001-11-05
+          5 | Nursultan  | Bekov      | 2002-04-10
+          8 | Aidar      | Bekov      | 2002-08-20
+          9 | Cholpon    | Bekov      | 2003-03-15
+(7 rows)
+
+
+postgres=#
+postgres=# DELETE FROM Students
+postgres-# WHERE student_id IN (2, 3, 5);
+DELETE 2
+postgres=#
+postgres=# SELECT * FROM Students;
+ student_id | first_name | last_name  | birth_date
+------------+------------+------------+------------
+          1 | Aibek      | Sharshenov | 2002-05-15
+          6 | Meerim     | Bekova     | 2003-06-12
+          7 | Tilek      | Usubaliev  | 2001-11-05
+          8 | Aidar      | Bekov      | 2002-08-20
+          9 | Cholpon    | Bekov      | 2003-03-15
+(5 rows)
+
+
+postgres=#
+postgres=# DROP TABLE Students;
+DROP TABLE

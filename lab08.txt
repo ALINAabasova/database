@@ -1,0 +1,397 @@
+PS C:\Users\Admin>  psql -h localhost -p 5432 -U postgres -d postgres
+Password for user postgres:
+
+psql (17.6, server 16.2)
+WARNING: Console code page (866) differs from Windows code page (1251)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+postgres=# CREATE TABLE teams (
+postgres(#     team_id SERIAL PRIMARY KEY,
+postgres(#     team_name VARCHAR(100) NOT NULL,
+postgres(#     city VARCHAR(100)
+postgres(# );
+CREATE TABLE
+postgres=# select * from teams
+postgres-# ;
+ team_id | team_name | city
+---------+-----------+------
+(0 rows)
+
+
+postgres=# CREATE TABLE players (
+postgres(#     player_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50) NOT NULL,
+postgres(#     last_name VARCHAR(50) NOT NULL,
+postgres(#     team_id INTEGER REFERENCES teams(team_id)
+postgres(# );
+CREATE TABLE
+postgres=# select * from players;
+ player_id | first_name | last_name | team_id
+-----------+------------+-----------+---------
+(0 rows)
+
+
+postgres=# DROP TABLE players;
+DROP TABLE
+postgres=# CREATE TABLE players (
+postgres(#     player_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50) NOT NULL,
+postgres(#     last_name VARCHAR(50) NOT NULL,
+postgres(#     team_id INTEGER,
+postgres(#     FOREIGN KEY (team_id) REFERENCES teams(team_id)
+postgres(# );
+CREATE TABLE
+postgres=# DROP TABLE players;
+DROP TABLE
+postgres=# CREATE TABLE players (
+postgres(#     player_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50) NOT NULL,
+postgres(#     last_name VARCHAR(50) NOT NULL,
+postgres(#     team_id INTEGER
+postgres(# );
+CREATE TABLE
+postgres=# ALTER TABLE players
+postgres-# ADD CONSTRAINT fk_player_team
+postgres-# FOREIGN KEY (team_id) REFERENCES teams(team_id);
+ALTER TABLE
+postgres=# DROP TABLE players;
+DROP TABLE
+postgres=# CREATE TABLE players (
+postgres(#     player_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50) NOT NULL,
+postgres(#     last_name VARCHAR(50) NOT NULL,
+postgres(#     team_id INTEGER,
+postgres(#     CONSTRAINT fk_player_team
+postgres(#         FOREIGN KEY (team_id) REFERENCES teams(team_id)
+postgres(# );
+CREATE TABLE
+postgres=# INSERT INTO teams (team_name, city) VALUES
+postgres-#     ('Lions', 'New York'),
+postgres-#     ('Tigers', 'Chicago'),
+postgres-#     ('Bears', 'Los Angeles');
+INSERT 0 3
+postgres=# INSERT INTO players (first_name, last_name, team_id) VALUES
+postgres-#     ('Mike', 'Johnson', 1);
+INSERT 0 1
+postgres=# INSERT INTO players (first_name, last_name, team_id) VALUES
+postgres-#     ('Sarah', 'Wilson', 99);
+ОШИБКА:  INSERT или UPDATE в таблице "players" нарушает ограничение внешнего ключа "fk_player_team"
+DETAIL:  Ключ (team_id)=(99) отсутствует в таблице "teams".
+postgres=# DELETE FROM teams WHERE team_id = 1;
+ОШИБКА:  UPDATE или DELETE в таблице "teams" нарушает ограничение внешнего ключа "fk_player_team" таблицы "players"
+DETAIL:  На ключ (team_id)=(1) всё ещё есть ссылки в таблице "players".
+postgres=# DROP TABLE players;
+DROP TABLE
+postgres=# CREATE TABLE players (
+postgres(#     player_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50) NOT NULL,
+postgres(#     last_name VARCHAR(50) NOT NULL,
+postgres(#     team_id INTEGER REFERENCES teams(team_id) ON DELETE CASCADE
+postgres(# );
+CREATE TABLE
+postgres=# INSERT INTO players (first_name, last_name, team_id) VALUES
+postgres-#     ('Mike', 'Johnson', 1);
+INSERT 0 1
+postgres=# DELETE FROM teams WHERE team_id = 1;
+DELETE 1
+postgres=#
+postgres=# INSERT INTO teams (team_name, city) VALUES
+postgres-#     ('Lions', 'New York'),
+postgres-#     ('Tigers', 'Chicago'),
+postgres-#     ('Bears', 'Los Angeles');
+INSERT 0 3
+postgres=# select * from teams
+postgres-# ;
+ team_id | team_name |    city
+---------+-----------+-------------
+       2 | Tigers    | Chicago
+       3 | Bears     | Los Angeles
+       4 | Lions     | New York
+       5 | Tigers    | Chicago
+       6 | Bears     | Los Angeles
+(5 rows)
+
+
+postgres=# select * from players;
+ player_id | first_name | last_name | team_id
+-----------+------------+-----------+---------
+(0 rows)
+
+
+postgres=# DROP TABLE players;
+DROP TABLE
+postgres=# CREATE TABLE players (
+postgres(#     player_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50) NOT NULL,
+postgres(#     last_name VARCHAR(50) NOT NULL,
+postgres(#     team_id INTEGER REFERENCES teams(team_id) ON DELETE SET NULL
+postgres(# );
+CREATE TABLE
+postgres=# INSERT INTO players (first_name, last_name, team_id) VALUES
+postgres-#     ('Mike', 'Johnson', 3);
+INSERT 0 1
+postgres=# DELETE FROM teams WHERE team_id = 3;
+DELETE 1
+postgres=# select * from players
+postgres-# ;
+ player_id | first_name | last_name | team_id
+-----------+------------+-----------+---------
+         1 | Mike       | Johnson   |
+(1 row)
+
+
+postgres=# DROP TABLE players;
+DROP TABLE
+postgres=# CREATE TABLE players (
+postgres(#     player_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50) NOT NULL,
+postgres(#     last_name VARCHAR(50) NOT NULL,
+postgres(#     team_id INTEGER REFERENCES teams(team_id) ON DELETE RESTRICT
+postgres(# );
+CREATE TABLE
+postgres=# INSERT INTO players (first_name, last_name, team_id) VALUES
+postgres-#     ('Mike', 'Johnson', 4);
+INSERT 0 1
+postgres=# select * from players;
+ player_id | first_name | last_name | team_id
+-----------+------------+-----------+---------
+         1 | Mike       | Johnson   |       4
+(1 row)
+
+
+postgres=# DELETE FROM teams WHERE team_id = 4;
+ОШИБКА:  UPDATE или DELETE в таблице "teams" нарушает ограничение внешнего ключа "players_team_id_fkey" таблицы "players"
+DETAIL:  На ключ (team_id)=(4) всё ещё есть ссылки в таблице "players".
+postgres=# DROP TABLE players;
+DROP TABLE
+postgres=# CREATE TABLE players (
+postgres(#     player_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50) NOT NULL,
+postgres(#     last_name VARCHAR(50) NOT NULL,
+postgres(#     team_id INTEGER REFERENCES teams(team_id) ON UPDATE CASCADE
+postgres(# );
+CREATE TABLE
+postgres=# UPDATE teams SET team_id = 100 WHERE team_id = 4;
+UPDATE 1
+postgres=# select * from players
+postgres-# ;
+ player_id | first_name | last_name | team_id
+-----------+------------+-----------+---------
+(0 rows)
+
+
+postgres=# DROP TABLE players;
+DROP TABLE
+postgres=# CREATE TABLE players (
+postgres(#     player_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50) NOT NULL,
+postgres(#     last_name VARCHAR(50) NOT NULL,
+postgres(#     team_id INTEGER REFERENCES teams(team_id)
+postgres(#         ON DELETE CASCADE
+postgres(#         ON UPDATE CASCADE
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# UPDATE teams SET team_id = 30 WHERE team_id = 5;
+UPDATE 1
+postgres=# select * from teams
+postgres-# ;
+ team_id | team_name |    city
+---------+-----------+-------------
+       2 | Tigers    | Chicago
+       6 | Bears     | Los Angeles
+     100 | Lions     | New York
+      30 | Tigers    | Chicago
+(4 rows)
+
+
+postgres=# DELETE FROM teams WHERE team_id = 30;
+DELETE 1
+postgres=# select * from teams;
+ team_id | team_name |    city
+---------+-----------+-------------
+       2 | Tigers    | Chicago
+       6 | Bears     | Los Angeles
+     100 | Lions     | New York
+(3 rows)
+
+
+postgres=# DROP TABLE players;
+DROP TABLE
+postgres=# DROP TABLE teams;
+DROP TABLE
+postgres=# CREATE TABLE accounts(
+postgres(#     account_id SERIAL PRIMARY KEY,
+postgres(#     username VARCHAR(50) UNIQUE NOT NULL,
+postgres(#     email VARCHAR(100) UNIQUE NOT NULL,
+postgres(#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+postgres(# );
+CREATE TABLE
+postgres=# CREATE TABLE profiles(
+postgres(#     account_id INTEGER PRIMARY KEY,
+postgres(#     first_name VARCHAR(50),
+postgres(#     last_name VARCHAR(50),
+postgres(#     bio TEXT,
+postgres(#     avatar_url VARCHAR(255),
+postgres(#     FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE
+postgres(# );
+CREATE TABLE
+postgres=# INSERT INTO accounts (username, email) VALUES
+postgres-#     ('user1', 'user1@email.com');
+INSERT 0 1
+postgres=# INSERT INTO profiles (account_id, first_name, last_name, bio) VALUES
+postgres-#     (1, 'John', 'Davis', 'Sample bio');
+INSERT 0 1
+postgres=# INSERT INTO profiles (account_id, first_name, last_name, bio) VALUES
+postgres-#     (1, 'Jane', 'Smith', 'Another bio');
+ОШИБКА:  повторяющееся значение ключа нарушает ограничение уникальности "profiles_pkey"
+DETAIL:  Ключ "(account_id)=(1)" уже существует.
+postgres=# DROP TABLE profiles;
+DROP TABLE
+postgres=# DROP TABLE accounts;
+DROP TABLE
+postgres=# CREATE TABLE companies (
+postgres(#     company_id SERIAL PRIMARY KEY,
+postgres(#     company_name VARCHAR(100) NOT NULL,
+postgres(#     ceo_name VARCHAR(100),
+postgres(#     revenue DECIMAL(10, 2)
+postgres(# );
+CREATE TABLE
+postgres=# CREATE TABLE workers (
+postgres(#     worker_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50) NOT NULL,
+postgres(#     last_name VARCHAR(50) NOT NULL,
+postgres(#     job_title VARCHAR(100),
+postgres(#     salary DECIMAL(10,2),
+postgres(#     start_date DATE DEFAULT CURRENT_DATE,
+postgres(#     company_id INTEGER NOT NULL,
+postgres(#     FOREIGN KEY (company_id) REFERENCES companies (company_id) ON DELETE RESTRICT
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# INSERT INTO companies (company_name, ceo_name, revenue) VALUES
+postgres-#     ('TechCorp', 'Alice Brown', 500000.00),
+postgres-#     ('MarketPro', 'Bob Green', 200000.00);
+INSERT 0 2
+postgres=# INSERT INTO workers (first_name, last_name, job_title, salary, company_id) VALUES
+postgres-#     ('Tom', 'Wilson', 'Developer', 75000.00, 1),
+postgres-#     ('Lisa', 'Taylor', 'Senior Developer', 85000.00, 1),
+postgres-#     ('David', 'Lee', 'System Admin', 80000.00, 1),
+postgres-#     ('Maria', 'Garcia', 'Marketing Manager', 55000.00, 2);
+INSERT 0 4
+postgres=# SELECT c.company_name, w.first_name, w.last_name, w.job_title
+postgres-# FROM companies c
+postgres-# JOIN workers w ON c.company_id = w.company_id
+postgres-# ORDER BY c.company_name, w.last_name;
+ company_name | first_name | last_name |     job_title
+--------------+------------+-----------+-------------------
+ MarketPro    | Maria      | Garcia    | Marketing Manager
+ TechCorp     | David      | Lee       | System Admin
+ TechCorp     | Lisa       | Taylor    | Senior Developer
+ TechCorp     | Tom        | Wilson    | Developer
+(4 rows)
+
+
+postgres=# DROP TABLE workers;
+DROP TABLE
+postgres=# DROP TABLE companies;
+DROP TABLE
+postgres=# CREATE TABLE learners(
+postgres(#     learner_id SERIAL PRIMARY KEY,
+postgres(#     first_name VARCHAR(50) NOT NULL,
+postgres(#     last_name VARCHAR(50) NOT NULL,
+postgres(#     email VARCHAR(100) UNIQUE,
+postgres(#     join_date DATE DEFAULT CURRENT_DATE
+postgres(# );
+CREATE TABLE
+postgres=# CREATE TABLE subjects (
+postgres(#     subject_id SERIAL PRIMARY KEY,
+postgres(#     subject_code VARCHAR(10) UNIQUE NOT NULL,
+postgres(#     subject_name VARCHAR(100) NOT NULL,
+postgres(#     credit_hours INTEGER NOT NULL,
+postgres(#     teacher VARCHAR(100)
+postgres(# );
+CREATE TABLE
+postgres=# CREATE TABLE registrations (
+postgres(#     registration_id SERIAL PRIMARY KEY,
+postgres(#     learner_id INTEGER NOT NULL,
+postgres(#     subject_id INTEGER NOT NULL,
+postgres(#     reg_date DATE DEFAULT CURRENT_DATE,
+postgres(#     result CHAR(2),
+postgres(#     FOREIGN KEY (learner_id) REFERENCES learners(learner_id) ON DELETE CASCADE,
+postgres(#     FOREIGN KEY (subject_id) REFERENCES subjects(subject_id) ON DELETE CASCADE,
+postgres(#     UNIQUE(learner_id, subject_id)
+postgres(# );
+CREATE TABLE
+postgres=# INSERT INTO learners (first_name, last_name, email) VALUES
+postgres-#     ('Emma', 'Clark', 'emma@school.edu'),
+postgres-#     ('James', 'Miller', 'james@school.edu'),
+postgres-#     ('Olivia', 'Davis', 'olivia@school.edu');
+INSERT 0 3
+postgres=#
+postgres=# INSERT INTO subjects (subject_code, subject_name, credit_hours, teacher) VALUES
+postgres-#     ('MATH101', 'Algebra', 3, 'Dr. White'),
+postgres-#     ('SCI201', 'Biology', 4, 'Dr. Black'),
+postgres-#     ('ENG101', 'Literature', 4, 'Dr. Gray');
+INSERT 0 3
+postgres=# INSERT INTO registrations (learner_id, subject_id, result) VALUES
+postgres-#     (1, 1, 'A'),
+postgres-#     (1, 2, 'B+'),
+postgres-#     (2, 1, 'A-'),
+postgres-#     (2, 3, 'B'),
+postgres-#     (3, 2, 'A'),
+postgres-#     (3, 3, 'A-');
+INSERT 0 6
+postgres=# SELECT
+postgres-#     l.first_name || ' ' || l.last_name AS learner_name,
+postgres-#     s.subject_code,
+postgres-#     s.subject_name,
+postgres-#     r.result,
+postgres-#     r.reg_date
+postgres-# FROM learners l
+postgres-# JOIN registrations r ON l.learner_id = r.learner_id
+postgres-# JOIN subjects s ON r.subject_id = s.subject_id
+postgres-# ORDER BY l.last_name, s.subject_code;
+ learner_name | subject_code | subject_name | result |  reg_date
+--------------+--------------+--------------+--------+------------
+ Emma Clark   | MATH101      | Algebra      | A      | 2025-10-16
+ Emma Clark   | SCI201       | Biology      | B+     | 2025-10-16
+ Olivia Davis | ENG101       | Literature   | A-     | 2025-10-16
+ Olivia Davis | SCI201       | Biology      | A      | 2025-10-16
+ James Miller | ENG101       | Literature   | B      | 2025-10-16
+ James Miller | MATH101      | Algebra      | A-     | 2025-10-16
+(6 rows)
+
+
+postgres=# SELECT l.first_name, l.last_name, r.result
+postgres-# FROM learners l
+postgres-# JOIN registrations r ON l.learner_id = r.learner_id
+postgres-# JOIN subjects s ON r.subject_id = s.subject_id
+postgres-# WHERE s.subject_code = 'MATH101';
+ first_name | last_name | result
+------------+-----------+--------
+ Emma       | Clark     | A
+ James      | Miller    | A-
+(2 rows)
+
+
+postgres=# SELECT s.subject_code, s.subject_name, s.credit_hours, r.result
+postgres-# FROM subjects s
+postgres-# JOIN registrations r ON s.subject_id = r.subject_id
+postgres-# JOIN learners l ON r.learner_id = l.learner_id
+postgres-# WHERE l.email = 'emma@school.edu';
+ subject_code | subject_name | credit_hours | result
+--------------+--------------+--------------+--------
+ MATH101      | Algebra      |            3 | A
+ SCI201       | Biology      |            4 | B+
+(2 rows)
+
+
+postgres=# DROP TABLE registrations;
+DROP TABLE
+postgres=# DROP TABLE subjects;
+DROP TABLE
+postgres=# DROP TABLE learners;
+DROP TABLE
