@@ -27,3 +27,5 @@ This repository contains my completed laboratory works for a university Database
 - **Lab15.txt/**  — Advanced Querying: subqueries, recursive CTEs, set operations, window functions
 - **Lab16.txt/**  — Transactions and ACID: BEGIN/COMMIT/ROLLBACK, isolation levels, savepoints
 - **Lab17.txt/**  — Data Import/Export: COPY commands, CSV operations, backup/restore procedures
+
+I pledge to meet all deadlines and will accept disciplinary action for failing to do so.
