@@ -86,6 +86,6 @@ CREATE TABLE interactions (
     interaction_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(user_id),
     manga_id INT NOT NULL REFERENCES manga(manga_id),
-    type VARCHAR(50), -- like/read/favorite
+    type VARCHAR(50), 
     created_at TIMESTAMP DEFAULT NOW()
 );

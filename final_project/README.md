@@ -122,11 +122,10 @@ The project is designed to satisfy the final project requirements:
 ## 5. Implementation
 
 - **DDL**: `schema.sql` – PostgreSQL implementation of all tables, keys, and constraints
-- **Dataset**: `dataset.sql` – for filling and demonstration
+- **Dataset**: `dataset.sql` – for filling and demonstration(includes transaction demonstration)
 - **Queries**:
-  - `queries_basic.sql` – SELECT, JOIN, WHERE
+  - `queries_basic.sql` – SELECT, JOIN, WHERE(includes index demonstration)
   - `queries_advanced.sql` – GROUP BY, subqueries, analytics
-- **Indexes**: created on PK, FK, and frequently queried columns
 - **Backup**: `backup.md`
 
 ---

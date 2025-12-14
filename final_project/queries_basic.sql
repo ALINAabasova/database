@@ -1,3 +1,9 @@
+-- Index for faster lookups of users by email
+CREATE INDEX idx_users_email ON users(email);
+
+-- Index for faster searches of manga by title
+CREATE INDEX idx_manga_title ON manga(title);
+
 -- Получить всех пользователей с их профилями
 SELECT 
     u.user_id,
