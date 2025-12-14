@@ -145,6 +145,7 @@ final_project/
   queries_advanced.sql
   backup.md
   er_diagram.png
+```
 
 ---
 
