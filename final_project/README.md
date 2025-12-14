@@ -127,10 +127,7 @@ The project is designed to satisfy the final project requirements:
   - `queries_basic.sql` – SELECT, JOIN, WHERE
   - `queries_advanced.sql` – GROUP BY, subqueries, analytics
 - **Indexes**: created on PK, FK, and frequently queried columns
-- **Backup/Restore**:
-  - `pg_dump` for backups
-  - `pg_restore` for restoration
-  - Strategy: full backup weekly, incremental before major changes
+- **Backup**: `backup.md`
 
 ---
 

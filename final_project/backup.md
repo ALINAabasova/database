@@ -19,7 +19,7 @@ This document describes how to back up and restore the **Manga Library and Reade
 A plain SQL backup stores the database structure and data in a readable SQL file.
 
 ```bash
-pg_dump -U postgres -d manga_library_db -F p -f manga_library_db_backup.sql
+pg_dump -U postgres -d manga_library -F p -f manga_library_db_backup.sql
 ```
 
 ## 3. Backup Schedule
